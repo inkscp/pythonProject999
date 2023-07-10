@@ -82,7 +82,7 @@ def greeting(username):
 
 
 
-from flask import Flask, url_for
+from flask import Flask, url_for, request
 
 app = Flask(__name__)
 
@@ -173,11 +173,49 @@ def slideshow():
          <div class="carousel-item">
            <img src="{url_for('static', filename='css/nyc3.jpg')}" class="d-block w-100">
          </div>
-    
+     </div>
      <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
      </body>
      </html>"""
+
+
+@app.route('/form_sample', methods=['GET', 'POST'])  #Форма
+def form_sample():
+    if request.method == "GET":
+        return f"""<!DOCTYPE html>
+         <html lang="en">
+         <head>
+             <meta charset="UTF-8">
+             <title>Пример формы</title>
+             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+             <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}">
+         </head>
+         <body>
+         <h1>Форма для регистрации</h1>
+         <div class="container">
+         <form class="login_form" method="post">
+         <input type="text" class="form-control" name="fname" placeholder="Фамилия"><br>  <!--нет закрывающего тэга у input-->
+         <input type="text" class="form-control" name="sname" placeholder="Имя"><br>
+         <input type="email" class="form-control" name="email" placeholder="email"><br>
+         <input type="password" class="form-control" name="password" placeholder="password"><br>
+         <div class="form-group">
+         <label for="classSelect">Ваше образование</label>
+         <select class="form-control" id="classSelect" name="profession">
+         <option>Высшее</option>
+         <option>Среднее</option>
+         </select>
+         </div>
+         <button type="submit" class="btn btn-primary">Отправить</button>  <!--форма будет отправлять содержимое формы-->
+         </form>
+         </div>
+         </body>
+         </html>"""
+    elif request.method == 'POST':
+        print(request.method)
+        print(request.form['fname'])
+        print(request.form['sname'])
+        return 'Форма отправлена'
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

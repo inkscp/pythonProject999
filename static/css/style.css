@@ -1,0 +1,17 @@
+.red {
+    color: red;
+}
+dl {
+   margin-top: 1em;
+   margin-bottom: 1em;
+}
+
+form.login_form {   /*прописали класс*/
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 450px;
+    background-color: #ffcc00;
+    border: 1px solid gray;
+    border-radius: 5px;  /*закругление*/
+    padding: 10px;  /*внутренний отступ*/
+}
