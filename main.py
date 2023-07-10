@@ -109,6 +109,43 @@ alt="Здесь должна была быть картинка, но не на�
 </body>
 </html>"""
 
+
+@app.route('/variants/<int:var>')
+def variants(var):
+    if var == 1:
+        return f"""<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Варианты выбора</title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}">
+            </head>
+            <body>
+            <h1>"Мюнхгаузен"</h1>
+        <body>
+        <dl>
+        <dt>Пан или пропал</dt>
+        <dd>А что, нельзя выжить, став паном?</dd>
+        </dl>
+        </body></html>"""
+    elif var == 2:
+        return f"""<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Варианты выбора</title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}">
+            </head>
+            <body>
+            <h1>"Мюнхгаузен"</h1>
+        <body>
+        <dl>
+        <dt>Даже если Вас съели, у Вас есть два выхода</dt>
+        <dd>А в рассказах Мюнхгаузена есть другой способ.</dd>
+        </dl>
+        </body></html>"""
 #
 # <p class='red'>И крепка, как смерть, любовь</p>
 # <p><\p>
