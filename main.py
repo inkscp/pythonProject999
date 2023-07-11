@@ -183,62 +183,8 @@ def slideshow():
 @app.route('/form_sample', methods=['GET', 'POST'])  #Форма
 def form_sample():
     if request.method == "GET":
-        return f"""<!DOCTYPE html>
-         <html lang="en">
-         <head>
-             <meta charset="UTF-8">
-             <title>Пример формы</title>
-             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-             <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}">
-         </head>
-         <body>
-         <h1>Форма для регистрации</h1>
-         <div class="container">
-         <form class="login_form" method="post">
-         <input type="text" class="form-control" name="fname" placeholder="Фамилия"><br>  <!--нет закрывающего тэга у input-->
-         <input type="text" class="form-control" name="sname" placeholder="Имя"><br>
-         <input type="email" class="form-control" name="email" placeholder="email"><br>
-         <input type="password" class="form-control" name="password" placeholder="password"><br>
-         <div class="form-group">
-         <label for="classSelect">Ваше образование</label>
-         <select class="form-control" id="classSelect" name="profession">
-         <option>Высшее</option>
-         <option>Среднее</option>
-         </select>
-         </div>
-         <!--Radio Button - Gender Selection-->
-         <div class="form-group">
-            <label for="form-check">Укажите пол</label>
-            <div class="form-check">
-            <input class="form-check-input" type="radio" name="sex" id="male" value="male" checked>
-            <label class="form-check-label" for="male">Мужской</label>
-         </div>
-         <div class="form-check">
-            <input class="form-check-input" type="radio" name="sex" id="female" value="female">
-            <label class="form-check-label" for="female">Женский</label>
-            </div>
-        </div>
-        <!--End of gender selection-->
-        <div>
-        <label for="about">Немного о себе</label>
-        <textarea class="form-control" id="about" name="about" rows="3">Немного о себе</textarea>
-        </div><br>   <!--чтобы форма отлипла и не сливалась с полем-->
-        <!--End of Text area-->
-        <div class="form-group">
-            <label for="photo">Прикрепите фото</label>
-            <input type="file" class="form-control-file" id="photo" name="file">
-        </div>
-        <!--Check box-->
-        <div>
-        <div class="form-group form-check">
-            <input type="checkbox class="form-check-input" id="ready" name="ready">
-            <label class="form-check-label" for="ready">Вы даете согласие на обработку персональных данных</label>
-        </div>
-        <!--End of Check box-->
-         <button type="submit" class="btn btn-primary">Отправить</button>  <!--форма будет отправлять содержимое формы-->
-        </form>
-         </body>
-         </html>"""
+       with open('./templates/Form.html', 'r', encoding='utf-8') as html_stream:
+           return html_stream.read()
     elif request.method == 'POST':
         print(request.method)
         print(request.form['fname'])
