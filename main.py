@@ -192,8 +192,22 @@ def form_sample():
         print(request.form['sname'])
         return 'Форма отправлена'
 
-
-
+@app.route('/load_photo', methods=['GET', 'POST'])  #Загрузить фото
+def load_photo():
+    if request.method == 'GET':
+        return f"""
+        <form class="login_form" method="post" enctype="multipart/form-data">   <!--метод пост отправляет на сервер. гет - в браузер. Энктайп Мультипарт - чтобы форма перегоняла файлы-->
+        <div class='form_group'>
+        <label for="photo">Приложите фото</label>
+        <input type="file" class="from-control-file" id="photo" name="file">
+        </div><br>
+        <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+        """
+    elif request.method == 'POST':
+        f = request.files['file']
+        f.save('./static/images/loaded.png')
+        return '<h1>Файл у Вас на сервере</h1>'
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
