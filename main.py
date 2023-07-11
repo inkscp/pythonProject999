@@ -19,13 +19,40 @@
 #
 # каркасный вариант приложения
 from flask import Flask, url_for, request, redirect  # подключаем конструктор и урл
-#
+from flask import render_template, json
+
 app = Flask(__name__)
-#
-@app.route('/')  #декораторы
+
+
+@app.route('/')
 @app.route('/index')
 def index():
-    return redirect('/Form')  # Безусловный редирект
+    # param = {}
+    # param['username'] = "Слушатель"
+    # param['title'] = "Работа с шаблонами"
+    # return render_template('index.html', **param)
+    return "hi"
+
+@app.route('/odd_even')
+def odd_even():
+    return render_template('odd_even.html', number=3)
+
+
+# @app.route('/news')
+# def news():
+#     lst = ['Ann', 'Tom', 'Bob']
+#     return render_template('news.html', title="FOR", news=lst)
+
+@app.route('/news')
+def news():
+        with open("news.json", "rt", encoding="utf-8") as f:
+            news_list = json.loads(f.read())
+            return render_template('news.html', title='Новости', news=news_list)
+
+
+    # return redirect('/Form')  # Безусловный редирект
+
+
 #     return 'hello'
 #
 # @app.route('/countdown')
@@ -63,7 +90,6 @@ def index():
 #     return 'Ибо крепка, как смерть, любовь<br><a href="/">Назад</a>'
 
 
-
 @app.route('/greeting/<username>')  # строковый параметр
 def greeting(username):
     return f"""<!DOCTYPE html>
@@ -81,11 +107,6 @@ def greeting(username):
  </body>
  </html>"""
 
-
-
-from flask import Flask, url_for, request
-
-app = Flask(__name__)
 
 @app.route('/nekrasov')
 def nekrasov():
@@ -147,12 +168,14 @@ def variants(var):
         <dd>А в рассказах Мюнхгаузена есть другой способ.</dd>
         </dl>
         </body></html>"""
+
+
 #
 # <p class='red'>И крепка, как смерть, любовь</p>
 # <p><\p>
 
 
-@app.route('/slideshow')  #Карусель
+@app.route('/slideshow')  # Карусель
 def slideshow():
     return f"""<!DOCTYPE html>
      <html lang="en">
@@ -181,18 +204,19 @@ def slideshow():
      </html>"""
 
 
-@app.route('/form_sample', methods=['GET', 'POST'])  #Форма
+@app.route('/form_sample', methods=['GET', 'POST'])  # Форма
 def form_sample():
     if request.method == "GET":
-       with open('./templates/Form.html', 'r', encoding='utf-8') as html_stream:
-           return html_stream.read()
+        with open('./templates/Form.html', 'r', encoding='utf-8') as html_stream:
+            return html_stream.read()
     elif request.method == 'POST':
         print(request.method)
         print(request.form['fname'])
         print(request.form['sname'])
         return 'Форма отправлена'
 
-@app.route('/load_photo', methods=['GET', 'POST'])  #Загрузить фото
+
+@app.route('/load_photo', methods=['GET', 'POST'])  # Загрузить фото
 def load_photo():
     if request.method == 'GET':
         return f"""
@@ -205,9 +229,10 @@ def load_photo():
         </form>
         """
     elif request.method == 'POST':
-        f = request.files['file']
+        f = request.files['file']  # request.form.get('file') - чтобы не выбросило искл-е. более мягкая форма
         f.save('./static/images/loaded.png')
         return '<h1>Файл у Вас на сервере</h1>'
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
