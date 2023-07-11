@@ -18,13 +18,14 @@
 #
 #
 # каркасный вариант приложения
-from flask import Flask, url_for  # подключаем конструктор и урл
+from flask import Flask, url_for, request, redirect  # подключаем конструктор и урл
 #
 app = Flask(__name__)
 #
-# @app.route('/')  #декораторы
-# @app.route('/index')
-# def index():
+@app.route('/')  #декораторы
+@app.route('/index')
+def index():
+    return redirect('/Form')  # Безусловный редирект
 #     return 'hello'
 #
 # @app.route('/countdown')
