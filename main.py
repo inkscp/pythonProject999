@@ -206,7 +206,6 @@ def form_sample():
          <option>Среднее</option>
          </select>
          </div>
-         <button type="submit" class="btn btn-primary">Отправить</button>  <!--форма будет отправлять содержимое формы-->
          <!--Radio Button - Gender Selection-->
          <div class="form-group">
             <label for="form-check">Укажите пол</label>
@@ -222,14 +221,21 @@ def form_sample():
         <!--End of gender selection-->
         <div>
         <label for="about">Немного о себе</label>
-        <textarea class="form-control" id="about" name="about" rows="3"></textarea>
+        <textarea class="form-control" id="about" name="about" rows="3">Немного о себе</textarea>
         </div><br>   <!--чтобы форма отлипла и не сливалась с полем-->
         <!--End of Text area-->
+        <div class="form-group">
+            <label for="photo">Прикрепите фото</label>
+            <input type="file" class="form-control-file" id="photo" name="file">
+        </div>
         <!--Check box-->
         <div>
-        
+        <div class="form-group form-check">
+            <input type="checkbox class="form-check-input" id="ready" name="ready">
+            <label class="form-check-label" for="ready">Вы даете согласие на обработку персональных данных</label>
         </div>
         <!--End of Check box-->
+         <button type="submit" class="btn btn-primary">Отправить</button>  <!--форма будет отправлять содержимое формы-->
         </form>
          </body>
          </html>"""
