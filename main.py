@@ -207,8 +207,30 @@ def form_sample():
          </select>
          </div>
          <button type="submit" class="btn btn-primary">Отправить</button>  <!--форма будет отправлять содержимое формы-->
-         </form>
+         <!--Radio Button - Gender Selection-->
+         <div class="form-group">
+            <label for="form-check">Укажите пол</label>
+            <div class="form-check">
+            <input class="form-check-input" type="radio" name="sex" id="male" value="male" checked>
+            <label class="form-check-label" for="male">Мужской</label>
          </div>
+         <div class="form-check">
+            <input class="form-check-input" type="radio" name="sex" id="female" value="female">
+            <label class="form-check-label" for="female">Женский</label>
+            </div>
+        </div>
+        <!--End of gender selection-->
+        <div>
+        <label for="about">Немного о себе</label>
+        <textarea class="form-control" id="about" name="about" rows="3"></textarea>
+        </div><br>   <!--чтобы форма отлипла и не сливалась с полем-->
+        <!--End of Text area-->
+        <!--Check box-->
+        <div>
+        
+        </div>
+        <!--End of Check box-->
+        </form>
          </body>
          </html>"""
     elif request.method == 'POST':
@@ -216,6 +238,9 @@ def form_sample():
         print(request.form['fname'])
         print(request.form['sname'])
         return 'Форма отправлена'
+
+
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
