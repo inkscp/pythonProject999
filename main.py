@@ -50,6 +50,12 @@ def news():
             return render_template('news.html', title='Новости', news=news_list)
 
 
+@app.route('/vartest')
+def vartest():
+    return render_template('var_test.html', title='Переменные в HTML')
+
+
+
     # return redirect('/Form')  # Безусловный редирект
 
 
