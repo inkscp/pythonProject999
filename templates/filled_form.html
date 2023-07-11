@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<img src="../static/images/loaded.png" alt="Фото"><br>
+{% set lst = ['Фамилия', 'Имя', 'email', 'password', 'Образование', 'Пол', 'О себе'] %}
+{% for key, value in data.items() %}
+{{ lst[loop.index0] }} - {{value}}<br>
+{% endfor %}
+{% endblock %}

@@ -27,10 +27,10 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/index')
 def index():
-    # param = {}
-    # param['username'] = "Слушатель"
-    # param['title'] = "Работа с шаблонами"
-    # return render_template('index.html', **param)
+    param = {}
+    param['username'] = "Слушатель"
+    param['title'] = "Расширяем шаблоны"
+    return render_template('index.html', **param)
     return "hi"
 
 @app.route('/odd_even')
@@ -213,13 +213,15 @@ def slideshow():
 @app.route('/form_sample', methods=['GET', 'POST'])  # Форма
 def form_sample():
     if request.method == "GET":
-        with open('./templates/Form.html', 'r', encoding='utf-8') as html_stream:
-            return html_stream.read()
+        return render_template('user_form.html', title='Форма')
     elif request.method == 'POST':
-        print(request.method)
-        print(request.form['fname'])
-        print(request.form['sname'])
-        return 'Форма отправлена'
+        f = request.files['file']  # request.form.get('file') - чтобы не выбросило искл-е. более мягкая форма
+        f.save('./static/images/loaded.png')
+        myform = request.form.to_dict()  # превратили в словарь
+        return render_template('filled_form.html', title='Ваши данные', data=myform)
+        # print(request.form['fname'])
+        # print(request.form['sname'])
+
 
 
 @app.route('/load_photo', methods=['GET', 'POST'])  # Загрузить фото
