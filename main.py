@@ -23,11 +23,12 @@ from flask import render_template, json
 import requests
 from loginform import LoginForm
 import sqlalchemy
+from data import db_session
 # pip install sqlalchemy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'too short key'  # тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/news.sqlite'
 
 # ошибка 404
 @app.errorhandler(404)
@@ -292,4 +293,5 @@ def success():
 
 
 if __name__ == '__main__':
+    db_session.global_init('db/news.sqlite')
     app.run(host='127.0.0.1', port=5000, debug=True)
