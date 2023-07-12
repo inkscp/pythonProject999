@@ -23,6 +23,18 @@ from flask import render_template, json
 import requests
 
 app = Flask(__name__)
+app.config['SECRET KEY'] = 'too short key'  #тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
+
+
+
+# ошибка 404
+@app.errorhandler(404)
+
+def http_404_error(error):
+    return redirect('/error404')
+@app.route('/error404')
+def well(): #колодец
+    return render_template('well.html')
 
 
 @app.route('/')
