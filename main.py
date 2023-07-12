@@ -21,19 +21,22 @@
 from flask import Flask, url_for, request, redirect  # подключаем конструктор и урл
 from flask import render_template, json
 import requests
+from loginform import LoginForm
+import sqlalchemy
+# pip install sqlalchemy
 
 app = Flask(__name__)
-app.config['SECRET KEY'] = 'too short key'  #тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
-
+app.config['SECRET_KEY'] = 'too short key'  # тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
 
 
 # ошибка 404
 @app.errorhandler(404)
-
 def http_404_error(error):
     return redirect('/error404')
+
+
 @app.route('/error404')
-def well(): #колодец
+def well():  # колодец
     return render_template('well.html')
 
 
@@ -45,6 +48,7 @@ def index():
     param['title'] = "Расширяем шаблоны"
     return render_template('index.html', **param)
     return "hi"
+
 
 @app.route('/odd_even')
 def odd_even():
@@ -58,16 +62,14 @@ def odd_even():
 
 @app.route('/news')
 def news():
-        with open("news.json", "rt", encoding="utf-8") as f:
-            news_list = json.loads(f.read())
-            return render_template('news.html', title='Новости', news=news_list)
+    with open("news.json", "rt", encoding="utf-8") as f:
+        news_list = json.loads(f.read())
+        return render_template('news.html', title='Новости', news=news_list)
 
 
 @app.route('/vartest')
 def vartest():
     return render_template('var_test.html', title='Переменные в HTML')
-
-
 
     # return redirect('/Form')  # Безусловный редирект
 
@@ -236,7 +238,6 @@ def form_sample():
         # print(request.form['sname'])
 
 
-
 @app.route('/load_photo', methods=['GET', 'POST'])  # Загрузить фото
 def load_photo():
     if request.method == 'GET':
@@ -275,6 +276,19 @@ def weather_form():
         data["icon"] = icon
         data['temp'] = temperature
         return render_template('weather.html', title=f'Погода в городе {town}', town=town, data=data, icon=icon)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():  # обращаюсь к объекту, вызываю метод
+        return redirect('/success')  # если валидация прошла успешно
+    return render_template('login.html', title='Авторизация', form=form)  # если форму вызвали, то ее надо передать
+
+
+@app.route('/success')
+def success():
+    return 'Success'
 
 
 if __name__ == '__main__':
