@@ -249,15 +249,20 @@ def weather_form():
         return render_template('weather_form.html', title='Выбор города')
     elif request.method == 'POST':
         town = request.form.get('town')
-        data = {}  # передать данные словаря
+        data = {}  # передать данные словаря, пустой
         key = 'f0c001f47039c4f29a033fbdd14851a6'
         url = 'http://api.openweathermap.org/data/2.5/weather'
         params = {'APPID': key, 'q': town, 'units': 'metric'}
         result = requests.get(url, params=params)
         weather = result.json()
         code = weather['cod']
+        # нужно еще прописать, что если код не 200, то информация не найдена
         icon = weather['weather'][0]['icon']
-        return render_template('weather.html', title=f'Погода в городе {town}', town=town, data=weather, icon=icon)
+        temperature = weather['main']['temp']
+        data["code"] = code
+        data["icon"] = icon
+        data['temp'] = temperature
+        return render_template('weather.html', title=f'Погода в городе {town}', town=town, data=data, icon=icon)
 
 
 if __name__ == '__main__':
