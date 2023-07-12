@@ -20,6 +20,7 @@
 # каркасный вариант приложения
 from flask import Flask, url_for, request, redirect  # подключаем конструктор и урл
 from flask import render_template, json
+import requests
 
 app = Flask(__name__)
 
@@ -240,6 +241,23 @@ def load_photo():
         f = request.files['file']  # request.form.get('file') - чтобы не выбросило искл-е. более мягкая форма
         f.save('./static/images/loaded.png')
         return '<h1>Файл у Вас на сервере</h1>'
+
+
+@app.route('/weather_form', methods=['GET', 'POST'])  # методы задаем
+def weather_form():
+    if request.method == 'GET':
+        return render_template('weather_form.html', title='Выбор города')
+    elif request.method == 'POST':
+        town = request.form.get('town')
+        data = {}  # передать данные словаря
+        key = 'f0c001f47039c4f29a033fbdd14851a6'
+        url = 'http://api.openweathermap.org/data/2.5/weather'
+        params = {'APPID': key, 'q': town, 'units': 'metric'}
+        result = requests.get(url, params=params)
+        weather = result.json()
+        code = weather['cod']
+        icon = weather['weather'][0]['icon']
+        return render_template('weather.html', title=f'Погода в городе {town}', town=town, data=weather, icon=icon)
 
 
 if __name__ == '__main__':
