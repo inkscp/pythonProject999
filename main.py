@@ -297,10 +297,16 @@ def success():
 if __name__ == '__main__':
     db_session.global_init('db/news.sqlite')  # подключились к сессии
     # app.run(host='127.0.0.1', port=5000, debug=True)
+    # в сложных запросах:
+    #  '|' - означает ИЛИ
+    #  '&' означает И
     db_sess = db_session.create_session()
-    users = db_sess.query(User).all()  # запрос к конкретному классу
-    for user in users:
-        print(user)
+    # users = db_sess.query(User).filter(User.email.notilike('%v%'))  # запрос к конкретному классу
+    user = db_sess.query(User).filter(User.id == 1).first()  # Вольдемара сделать Владимиром
+    user.name = 'Vladimir'
+    db_sess.commit()
+    # for user in users:
+    #     print(user)
     # user = User()
     # user.name = 'Mark'
     # user.about = 'plumber'
