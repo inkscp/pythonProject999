@@ -2,5 +2,13 @@
 
 {% block content %}
 <!-- Шаблонизотор Jinja -->
-    <h1>Hello, {{ username }}!</h1>
+<!--    <h1>Hello, {{ username }}!</h1>-->
+<h1>Новости</h1>
+{% for item in news%}
+<div class="col border rounded">
+    <h2>{{ item.title }}</h2>
+    <div>{{ item.content }}</div>
+    <div>{{ item.user.name }}</div> - <div>{{ item.created_date }}</div>
+</div>
+{% endfor %}
 {% endblock %}

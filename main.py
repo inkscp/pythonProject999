@@ -27,6 +27,7 @@ from data import db_session
 from mail_sender import send_mail
 from data.users import User
 from data.news import News
+from forms.user import RegisterForm
 # pip install sqlalchemy
 
 app = Flask(__name__)
@@ -47,10 +48,13 @@ def well():  # колодец
 @app.route('/')
 @app.route('/index')
 def index():
-    param = {}
-    param['username'] = "Слушатель"
-    param['title'] = "Расширяем шаблоны"
-    return render_template('index.html', **param)
+    #работу с БД начинаем с откр сессии
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.is_private != True)
+    return render_template('index.html', title='Новости', news=news)
+    # param = {}
+    # param['username'] = "Слушатель"
+    # param['title'] = "Расширяем шаблоны"
     return "hi"
 
 
@@ -295,30 +299,55 @@ def success():
     return 'Success'
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():   # валидация формы
+        if form.password.data != form.password_again.data:
+            return render_template('register.html',
+                                   title="Проблемы с регистрацией",
+                                   message='Пароли не совпадают', form=form)  # нужно передать форму
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():   # проверяем нет ли такого имейла в базе
+            return render_template('register.html', title="Проблемы с регистрацией",
+                                   message='Пользователь с таким email уже существует', form=form)
+        user = User(name=form.name.data, email=form.email.data, about=form.about.data)   #если все ок-создали юзера
+        user.set_password(form.password.data)
+        db_sess.add(user)  # добавляем юзера в БД
+        db_sess.commit()
+        return redirect('/login')
+    return render_template('register.html', title='Регистрация', form=form)
+
+
 if __name__ == '__main__':
     db_session.global_init('db/news.sqlite')  # подключились к сессии
-    # app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
     # в сложных запросах:
     #  '|' - означает ИЛИ
     #  '&' означает И
-    db_sess = db_session.create_session()
-    чтобы пользователь добавил новость
-    news = News(title='Новости от Владимира', content='Опаздываю на работу', user_id=2, is_private=False)
-    db_sess.add(news)
-    db_sess.commit()
-    id = db_sess.query(User).filter(User.id == 2).first()
-    news = News(title='Новость от Владимира №2', content='Больше не опаздываю на работу', user_id=id.id, is_private=False)
-    db_sess.add(news)
-    db_sess.commit()
-    user = db_sess.query(User).filter(User.id == 2).first() # обращаемся напрямую через объект класс и метод append
-    news = News(title='Новость от Владимира №3', content='На месте', is_private=False)
-    user.news.append(news)  # новость добавить новости
-    db_sess.commit()
+    # db_sess = db_session.create_session()
+    # user = db_sess.query(User).filter(User.id == 2).first()
+    # print(user.news)
+    # for news in user.news:  # для переменной news
+    #     print(news)
 
-    user = db_sess.query(User).filter(User.id == 2).first()
-    subj = News(title='Новость от Владимира №4', content='Пошел на обед', is_private=False)
-    user.news.append(subj)  # новость добавить новости
-    db_sess.commit()
+    # чтобы пользователь добавил новость
+    # news = News(title='Новости от Владимира', content='Опаздываю на работу', user_id=1, is_private=False)
+    # db_sess.add(news)
+    # db_sess.commit()
+    # id = db_sess.query(User).filter(User.id == 1).first()
+    # news = News(title='Новость от Владимира №2', content='Больше не опаздываю на работу', user_id=id.id, is_private=False)
+    # db_sess.add(news)
+    # db_sess.commit()
+    # user = db_sess.query(User).filter(User.id == 1).first() # обращаемся напрямую через объект класс и метод append
+    # news = News(title='Новость от Владимира №3', content='На месте', is_private=False)
+    # user.news.append(news)  # новость добавить новости
+    # db_sess.commit()
+    # #
+    # user = db_sess.query(User).filter(User.id == 1).first()
+    # subj = News(title='Новость от Владимира №4', content='Пошел на обед', is_private=False)
+    # user.news.append(subj)  # новость добавить новости
+    # db_sess.commit()
     # users = db_sess.query(User).filter(User.email.notilike('%v%'))  # запрос к конкретному классу
 
     # user = db_sess.query(User).filter(User.id == 1).first()  # Вольдемара сделать Владимиром

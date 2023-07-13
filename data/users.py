@@ -2,7 +2,8 @@ import datetime
 import sqlalchemy
 from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
-
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 class User(SqlAlchemyBase):
     __tablename__ = 'users'
@@ -18,6 +19,13 @@ class User(SqlAlchemyBase):
                                     default=datetime.datetime.now())
     news = orm.relationship("News", back_populates='user')
 
-
     def __repr__(self):  # спецметод represent, чтобы вывести не объекты, а людей
         return f'{self.name} - {self.email}'
+
+    def set_password(self, password):
+        self.hashed_password = generate_password_hash(password)  #зашифрованный пароль запишется в таблицу
+
+    def check_password(self, password):
+        return check_password_hash(self.hashed_password, password)
+
+
