@@ -297,6 +297,10 @@ def success():
 if __name__ == '__main__':
     db_session.global_init('db/news.sqlite')  # подключились к сессии
     # app.run(host='127.0.0.1', port=5000, debug=True)
+    db_sess = db_session.create_session()
+    users = db_sess.query(User).all()  # запрос к конкретному классу
+    for user in users:
+        print(user)
     # user = User()
     # user.name = 'Mark'
     # user.about = 'plumber'
