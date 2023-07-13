@@ -24,6 +24,8 @@ import requests
 from loginform import LoginForm
 import sqlalchemy
 from data import db_session
+from mail_sender import send_mail
+from data.users import User
 # pip install sqlalchemy
 
 app = Flask(__name__)
@@ -293,5 +295,12 @@ def success():
 
 
 if __name__ == '__main__':
-    db_session.global_init('db/news.sqlite')
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    db_session.global_init('db/news.sqlite')  # подключились к сессии
+    # app.run(host='127.0.0.1', port=5000, debug=True)
+    # user = User()
+    # user.name = 'Mark'
+    # user.about = 'plumber'
+    # user.mail = 'mark@mail.ru'
+    # db_sess = db_session.create_session()  # создаем сессию
+    # db_sess.add(user)  # добавить юзера
+    # db_sess.commit()

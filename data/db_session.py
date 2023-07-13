@@ -32,4 +32,4 @@ def global_init(db_file):  # файл с таким именем будет со
 
 def create_session() -> Session:  # эта функция будет возвращать сессию
     global created
-    return created
+    return created()
