@@ -26,6 +26,7 @@ import sqlalchemy
 from data import db_session
 from mail_sender import send_mail
 from data.users import User
+from data.news import News
 # pip install sqlalchemy
 
 app = Flask(__name__)
@@ -301,15 +302,32 @@ if __name__ == '__main__':
     #  '|' - означает ИЛИ
     #  '&' означает И
     db_sess = db_session.create_session()
+    чтобы пользователь добавил новость
+    news = News(title='Новости от Владимира', content='Опаздываю на работу', user_id=2, is_private=False)
+    db_sess.add(news)
+    db_sess.commit()
+    id = db_sess.query(User).filter(User.id == 2).first()
+    news = News(title='Новость от Владимира №2', content='Больше не опаздываю на работу', user_id=id.id, is_private=False)
+    db_sess.add(news)
+    db_sess.commit()
+    user = db_sess.query(User).filter(User.id == 2).first() # обращаемся напрямую через объект класс и метод append
+    news = News(title='Новость от Владимира №3', content='На месте', is_private=False)
+    user.news.append(news)  # новость добавить новости
+    db_sess.commit()
+
+    user = db_sess.query(User).filter(User.id == 2).first()
+    subj = News(title='Новость от Владимира №4', content='Пошел на обед', is_private=False)
+    user.news.append(subj)  # новость добавить новости
+    db_sess.commit()
     # users = db_sess.query(User).filter(User.email.notilike('%v%'))  # запрос к конкретному классу
 
     # user = db_sess.query(User).filter(User.id == 1).first()  # Вольдемара сделать Владимиром
     # user.name = 'Vladimir'
     # db_sess.commit()
 
-    user = db_sess.query(User).filter(User.name == 'Dmitry').first()  # удалить юзера
-    db_sess.delete(user)
-    db_sess.commit()
+    # user = db_sess.query(User).filter(User.name == 'Dmitry').first()  # удалить юзера
+    # db_sess.delete(user)
+    # db_sess.commit()
     # for user in users:
     #     print(user)
     # user = User()
