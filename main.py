@@ -28,6 +28,7 @@ from mail_sender import send_mail
 from data.users import User
 from data.news import News
 from forms.user import RegisterForm
+from flask import make_response
 # pip install sqlalchemy
 
 app = Flask(__name__)
@@ -317,6 +318,20 @@ def register():
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+
+@app.route('/cookie_test')
+def cookie_test():
+    visit_count = int(request.cookies.get('visit_count', 0))
+    if visit_count:
+        res = make_response(f'Были уже {visit_count + 1} раз')
+        res.set_cookie('visit_count', str(visit_count + 1), max_age=60 * 60 * 24 * 365 * 2)
+    else:
+        res = make_response('Вы впервые здесь за 2 года')
+        res.set_cookie('visit_count', '1', max_age=60 * 60 * 24 * 365 * 2)
+        return res
+
 
 
 if __name__ == '__main__':
