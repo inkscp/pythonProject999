@@ -302,8 +302,13 @@ if __name__ == '__main__':
     #  '&' означает И
     db_sess = db_session.create_session()
     # users = db_sess.query(User).filter(User.email.notilike('%v%'))  # запрос к конкретному классу
-    user = db_sess.query(User).filter(User.id == 1).first()  # Вольдемара сделать Владимиром
-    user.name = 'Vladimir'
+
+    # user = db_sess.query(User).filter(User.id == 1).first()  # Вольдемара сделать Владимиром
+    # user.name = 'Vladimir'
+    # db_sess.commit()
+
+    user = db_sess.query(User).filter(User.name == 'Dmitry').first()  # удалить юзера
+    db_sess.delete(user)
     db_sess.commit()
     # for user in users:
     #     print(user)
