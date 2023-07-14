@@ -324,9 +324,12 @@ def register():
 @app.route('/cookie_test')
 def cookie_test():
     visit_count = int(request.cookies.get('visit_count', 0))
-    if visit_count:
+    if visit_count != 0 and visit_count <= 20:
         res = make_response(f'Были уже {visit_count + 1} раз')
         res.set_cookie('visit_count', str(visit_count + 1), max_age=60 * 60 * 24 * 365 * 2)
+    elif visit_count > 20:
+        res = make_response('Были уже {visit_count + 1} раз')
+        res.set_cookie('visit_count', '1', max_age=0)
     else:
         res = make_response('Вы впервые здесь за 2 года')
         res.set_cookie('visit_count', '1', max_age=60 * 60 * 24 * 365 * 2)
