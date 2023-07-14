@@ -18,7 +18,7 @@
 #
 #
 # каркасный вариант приложения
-from flask import Flask, url_for, request, redirect  # подключаем конструктор и урл
+from flask import Flask, url_for, request, redirect, abort  # подключаем конструктор и урл
 from flask import render_template, json
 import requests
 from loginform import LoginForm
@@ -27,13 +27,39 @@ from data import db_session
 from mail_sender import send_mail
 from data.users import User
 from data.news import News
+from forms.add_news import NewsForm
 from forms.user import RegisterForm
-from flask import make_response
+from flask import make_response, session
+from flask_login import LoginManager, login_user, login_required
+from flask_login import logout_user, current_user
+import datetime
+
 # pip install sqlalchemy
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'too short key'  # тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
+login_manager = LoginManager()  # конструктор логин-менеджера, создали объект
+login_manager.init_app(app)  # мы прописали его в нашем приложении
+
+app.config[
+    'SECRET_KEY'] = 'too short key'  # тут пишется вместо туу шорт ки длинный ключ с цифрами. буквами. спецсимволами
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/news.sqlite'
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
+    days=365)  # чтобы сессия действовала год. даже если закрыть браузер
+
+
+#  прописываем функцию для получения пользователя, лучше писать функцию вверху, чтобы логин работал корректно:
+@login_manager.user_loader  # рядом с декоратором не нужны скобки
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)  # вернет юзера, кот успешно авторизовался на нашем сайте
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')  # редирект юзера на страницы после авторизации и без нее
+
 
 # ошибка 404
 @app.errorhandler(404)
@@ -43,15 +69,26 @@ def http_404_error(error):
 
 @app.route('/error404')
 def well():  # колодец
-    return render_template('well.html')
+    return render_template('well.html')  # прописать динозавтра
+
+
+@app.errorhandler(401)
+def def_http_401_handler(error):
+    return redirect('/login')
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    #работу с БД начинаем с откр сессии
+    # работу с БД начинаем с откр сессии
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.is_private != True)
+    if current_user.is_authenticated:
+        news = db_sess.query(News).filter(
+            (News.user == current_user) | (News.is_private != True))
+    else:
+        news = db_sess.query(News).filter(News.is_private != True)
+    # db_sess = db_session.create_session()
+    # news = db_sess.query(News).filter(News.is_private != True)
     return render_template('index.html', title='Новости', news=news)
     # param = {}
     # param['username'] = "Слушатель"
@@ -69,11 +106,55 @@ def odd_even():
 #     lst = ['Ann', 'Tom', 'Bob']
 #     return render_template('news.html', title="FOR", news=lst)
 
-@app.route('/news')
-def news():
-    with open("news.json", "rt", encoding="utf-8") as f:
-        news_list = json.loads(f.read())
-        return render_template('news.html', title='Новости', news=news_list)
+@app.route('/news', methods=['POST', 'GET'])
+# добавлять новость может только тот. кто авторизован
+@login_required
+def add_news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()  # создали сессию
+        news = News()  # создаем объект, обращаемся к orm модели News
+        news.title = form.title.data
+        news.content = form.content.data
+        news.is_private = form.is_private.data
+        current_user.news.append(news)
+        db_sess.merge(current_user)  # слияние сессии с залогиненным пользователем
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости', form=form)
+    # with open("news.json", "rt", encoding="utf-8") as f:
+    #     news_list = json.loads(f.read())
+    #     return render_template('news.html', title='Новости', news=news_list)
+
+
+@app.route('/news/<int:id>', methods=['POST', 'GET'])
+@login_required
+def edit_news(id):
+    print(id)
+    form = NewsForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id, News.user == current_user).first()
+        print(current_user, News.id, id, News.user)
+        if news:
+            form.title.data = news.title  # если новость была
+            form.content.data = news.content
+            form.is_private.data = news.is_private  # получаем из таблицы новостей
+        # аварийный выход из ф-ции с передачей ошибки
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id, News.user == current_user).first()
+        if news:
+            news.title = form.title.data  # если новость была
+            news.content = form.content.data
+            news.is_private = form.is_private.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+            return render_template('news.html', title='Редактирование новости', form=form)
 
 
 @app.route('/vartest')
@@ -291,7 +372,15 @@ def weather_form():
 def login():
     form = LoginForm()
     if form.validate_on_submit():  # обращаюсь к объекту, вызываю метод
-        return redirect('/success')  # если валидация прошла успешно
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(
+            User.email == form.email.data).first()  # проверка есть ли юзер с каким имейлом
+        if user and user.check_password(form.password.data):  # проверяем хэшированный пароль с хэшем в БД
+            login_user(user, remember=form.remember_me.data)
+            return redirect('/')  # если успешно залогинился юзер, то выбрасывает его на главную
+        # return redirect('/success')  # если валидация прошла успешно
+        return render_template('login.html', title='Повторная авторизация', message='Неверный логин или пароль',
+                               form=form)
     return render_template('login.html', title='Авторизация', form=form)  # если форму вызвали, то ее надо передать
 
 
@@ -303,22 +392,21 @@ def success():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if form.validate_on_submit():   # валидация формы
+    if form.validate_on_submit():  # валидация формы
         if form.password.data != form.password_again.data:
             return render_template('register.html',
                                    title="Проблемы с регистрацией",
                                    message='Пароли не совпадают', form=form)  # нужно передать форму
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():   # проверяем нет ли такого имейла в базе
+        if db_sess.query(User).filter(User.email == form.email.data).first():  # проверяем нет ли такого имейла в базе
             return render_template('register.html', title="Проблемы с регистрацией",
                                    message='Пользователь с таким email уже существует', form=form)
-        user = User(name=form.name.data, email=form.email.data, about=form.about.data)   #если все ок-создали юзера
+        user = User(name=form.name.data, email=form.email.data, about=form.about.data)  # если все ок-создали юзера
         user.set_password(form.password.data)
         db_sess.add(user)  # добавляем юзера в БД
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
-
 
 
 @app.route('/cookie_test')
@@ -335,6 +423,15 @@ def cookie_test():
         res.set_cookie('visit_count', '1', max_age=60 * 60 * 24 * 365 * 2)
         return res
 
+
+@app.route('/session_test')  # то. что в декораторе, обязано что-то вернуть - return
+def session_test():
+    visit_count = session.get('visit_count', 0)
+    session['visit_count'] = visit_count + 1
+    if session['visit_count'] > 3:
+        session.pop('visit_count', None)  # чтобы лимитировать сессии, после 4 начинается отсчет сначала
+    session.permanent = True  # максимум 31 день
+    return make_response(f'Мы тут были уже {visit_count + 1} раз.')
 
 
 if __name__ == '__main__':

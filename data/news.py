@@ -13,3 +13,7 @@ class News(SqlAlchemyBase):
     is_private = sqlalchemy.Column(sqlalchemy.Boolean, default=True)  # по дефолту новость приватная
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))  # забираем форенки из др табл
     user = orm.relationship('User')  # мы берем user из класса User.  пользователь - много новостей, связь идет по id
+
+
+    def __repr__(self):  # спецметод represent, чтобы вывести все новости юзера
+        return f'{self.content}'

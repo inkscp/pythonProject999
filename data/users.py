@@ -4,8 +4,9 @@ from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from flask_login import UserMixin  # чтобы юзеры успешно авторизовались
 
-class User(SqlAlchemyBase):
+class User(SqlAlchemyBase, UserMixin):  # чтобы методы вручную не прописывать. наш класс юзер теперь обладает всеми свойствами класса UserMixin
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True,

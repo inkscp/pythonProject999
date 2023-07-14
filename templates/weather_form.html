@@ -2,6 +2,9 @@
 
 {% block content %}
 <!--прописываем метод и класс-->
+    {% if current_user.is_authenticated %}
+<h1 align="center">Здравствуйте, {{ current_user.name}}!</h1>
+    {% endif %}
     <form method="post" class="login-form">
         <input type="text" name="town" class ="form-control" placeholder="Город">
         <button type="submit" class="btn btn-primary">Погода</button>
