@@ -18,12 +18,14 @@
 #
 #
 # каркасный вариант приложения
-from flask import Flask, url_for, request, redirect, abort  # подключаем конструктор и урл
+from flask import Flask, url_for, request, redirect, abort, jsonify  # подключаем конструктор и урл
 from flask import render_template, json
 import requests
+
+from data.news_api import blueprint
 from loginform import LoginForm
 import sqlalchemy
-from data import db_session
+from data import db_session, news_api
 from mail_sender import send_mail
 from data.users import User
 from data.news import News
@@ -33,10 +35,12 @@ from flask import make_response, session
 from flask_login import LoginManager, login_user, login_required
 from flask_login import logout_user, current_user
 import datetime
-
+from flask_restful import reqparse, abort, Api, Resource
+import news_resources   # второй способ подключения приложения
 # pip install sqlalchemy
 
 app = Flask(__name__)
+api = Api(app)
 login_manager = LoginManager()  # конструктор логин-менеджера, создали объект
 login_manager.init_app(app)  # мы прописали его в нашем приложении
 
@@ -62,10 +66,19 @@ def logout():
 
 
 # ошибка 404
-@app.errorhandler(404)
-def http_404_error(error):
-    return redirect('/error404')
+# @app.errorhandler(404)
+# def http_404_error(error):
+#     return redirect('/error404')
 
+
+@app.errorhandler(400)
+def http_400_handler(_):
+    return make_response(jsonify({'error400': 'Некорректный запрос'}), 400)
+
+
+@blueprint.errorhandler(404)
+def http_404_error(error):
+    return make_response(jsonify({'error': f'Новости не найдены'}), 404)
 
 @app.route('/error404')
 def well():  # колодец
@@ -434,8 +447,31 @@ def session_test():
     return make_response(f'Мы тут были уже {visit_count + 1} раз.')
 
 
+@app.route('/news_del/<int:id>', methods=['GET', 'POST'])  # то. что в декораторе, обязано что-то вернуть - return
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id, News.user == current_user).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 if __name__ == '__main__':
     db_session.global_init('db/news.sqlite')  # подключились к сессии
+    # подключаем АПИ с помощью blueprint
+    # app.register_blueprint(news_api.blueprint)
+
+    # подключаем АПИ с помощью flask-restful (второй способ подключения приложения, можно на лету добавлять, в отл от блюпринт.
+    # миграция - похоже на систему контроля версий. но только для баз данных. фиксирует все изменения)
+    # для чего регистрируем классы из news_resources
+    # 1. для списка объектов
+    api.add_resource(news_resources.NewsListResource, '/api/v2/news')
+    # 2. для одного объекта
+    api.add_resource(news_resources.NewsResource, '/api/v2/news/<int:news_id>')
     app.run(host='127.0.0.1', port=5000, debug=True)
     # в сложных запросах:
     #  '|' - означает ИЛИ

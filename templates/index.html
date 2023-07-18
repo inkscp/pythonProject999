@@ -12,7 +12,10 @@
     <div>{{ item.created_date.strftime('%d-%m-%Y %H:%M') }}</div>
     {% if current_user.is_authenticated and current_user == item.user %}
     <a href="/news/{{ item.id }}" class="btn btn-warning">Изменить</a>&nbsp;&nbsp;
-    <br/><a href="news_del{{ item.id }}" class="btn btn-sm btn-danger">Удалить</a>
+    <br/><a href="news_del{{ item.id }}" title="Удалить новость:
+&laquo;№{{item.title}}&raquo;" class="btn btn-sm btn-danger"
+            onclick="return confirm('Вы действительно хотите удалить новость
+&laquo;{{item.title}}&raquo;?')">Удалить</a>
     {% endif %}
 <br><br></div>
 {% endfor %}
